@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>e-Panitia Sejarah</title>
+<style>
+:root{--bg:#fff;--card:#faf7fd;--line:#e3d9ee;--ink:#241a2e;--mute:#6b5f78;--acc:#7b3fa0;--acc2:#3a5bd9}
+@media (prefers-color-scheme:dark){:root{--bg:#1c1424;--card:#2a1f36;--line:#463757;--ink:#f3ecfa;--mute:#b3a5c4;--acc:#c28cf0;--acc2:#8fa6ff}}
+*{box-sizing:border-box}
+body{margin:0;padding:20px;background:var(--bg);color:var(--ink);font-family:"Segoe UI",Roboto,Arial,sans-serif}
+h1{font-size:1.7rem;margin:0 0 4px}
+.sub{color:var(--mute);margin:0 0 16px}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:18px}
+select{padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+a.card{display:flex;gap:12px;align-items:center;padding:16px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);text-decoration:none;font-weight:600;min-height:72px}
+a.card:hover,a.card:focus-visible{border-color:var(--acc);outline:2px solid var(--acc);outline-offset:1px}
+a.card.kosong{opacity:.55}
+.ico{font-size:1.5rem;width:44px;height:44px;display:grid;place-items:center;border-radius:10px;background:linear-gradient(135deg,var(--acc),var(--acc2));flex:none}
+small{display:block;font-weight:400;color:var(--mute);margin-top:2px}
+.nota{color:var(--mute);margin-top:18px;font-size:.9rem}
+</style>
+</head>
+<body>
+<h1 id="tajuk"></h1>
+<p class="sub">SMK Taman Jasmin 2 · Sesi Petang</p>
+<div class="bar">
+  <label for="tahun">Tahun:</label>
+  <select id="tahun"></select>
+</div>
+<div class="grid" id="grid"></div>
+<p class="nota" id="nota"></p>
+
+<script>
+/* ===== EDIT BAHAGIAN INI SAHAJA =====
+   Tampal pautan Google Drive sebenar pada setiap "url".
+   Tahun baharu: tambah dalam senarai TAHUN dan salin bahagian pautan. */
+var TAHUN = ["2027","2026"];
+
+var HALAMAN = {
+  pengurusan: { tajuk:"Pengurusan Panitia Sejarah", kad:[
+    {i:"📅", t:"Takwim Panitia",  url:{"2027":"","2026":""}},
+    {i:"👥", t:"Carta Organisasi",url:{"2027":"","2026":""}},
+    {i:"📝", t:"Minit Mesyuarat", url:{"2027":"","2026":""}},
+    {i:"🎯", t:"Pelan Strategik", url:{"2027":"","2026":""}},
+    {i:"📋", t:"Pelan Taktikal",  url:{"2027":"","2026":""}},
+    {i:"✅", t:"Pelan Operasi",   url:{"2027":"","2026":""}},
+    {i:"📊", t:"Laporan & KPI",   url:{"2027":"","2026":""}},
+    {i:"🗂️", t:"Arkib",           url:{"2027":"","2026":""}}
+  ]},
+  kurikulum: { tajuk:"Kurikulum dan PdP", kad:[
+    {i:"📘", t:"DSKP Sejarah",          url:{"2027":"","2026":""}},
+    {i:"🗓️", t:"Rancangan Pelajaran Tahunan", url:{"2027":"","2026":""}},
+    {i:"🧩", t:"Rancangan Pelajaran Harian",  url:{"2027":"","2026":""}},
+    {i:"🎞️", t:"Bahan Bantu Mengajar",  url:{"2027":"","2026":""}},
+    {i:"🕹️", t:"HistoryVerse",          url:{"2027":"","2026":""}},
+    {i:"🔬", t:"Inovasi PdP",           url:{"2027":"","2026":""}}
+  ]},
+  pentaksiran: { tajuk:"Pentaksiran dan Analisis", kad:[
+    {i:"📄", t:"Jadual Spesifikasi Ujian",url:{"2027":"","2026":""}},
+    {i:"📑", t:"Kertas Soalan & Skema",   url:{"2027":"","2026":""}},
+    {i:"📈", t:"Analisis Peperiksaan",    url:{"2027":"","2026":""}},
+    {i:"🧮", t:"Analisis Item",           url:{"2027":"","2026":""}},
+    {i:"🛠️", t:"Pelan Intervensi",        url:{"2027":"","2026":""}},
+    {i:"🏅", t:"Pencapaian Murid",        url:{"2027":"","2026":""}}
+  ]},
+  program: { tajuk:"Program & Aktiviti", kad:[
+    {i:"🏛️", t:"A · HistoryVerse",             url:{"2027":"","2026":""}},
+    {i:"🎮", t:"B · Game-Based Learning",       url:{"2027":"","2026":""}},
+    {i:"🥽", t:"C · Immersive Experience",      url:{"2027":"","2026":""}},
+    {i:"🏆", t:"D · Digital History Challenge", url:{"2027":"","2026":""}},
+    {i:"🖼️", t:"Galeri & Evidens",              url:{"2027":"","2026":""}},
+    {i:"📝", t:"Laporan Program",               url:{"2027":"","2026":""}}
+  ]}
+};
+/* ===== TAMAT BAHAGIAN EDIT ===== */
+
+var p = new URLSearchParams(location.search);
+var kunci = p.get("halaman");
+if(!HALAMAN[kunci]) kunci = "pengurusan";
+var sel = document.getElementById("tahun");
+TAHUN.forEach(function(y){ var o=document.createElement("option"); o.value=y; o.textContent=y; sel.appendChild(o); });
+if(TAHUN.indexOf(p.get("tahun"))>-1) sel.value = p.get("tahun");
+
+function papar(){
+  var h = HALAMAN[kunci], y = sel.value, kosong = 0;
+  document.getElementById("tajuk").textContent = h.tajuk + " " + y;
+  var g = document.getElementById("grid"); g.innerHTML = "";
+  h.kad.forEach(function(k){
+    var u = k.url[y] || "";
+    var a = document.createElement("a");
+    a.className = "card" + (u ? "" : " kosong");
+    a.href = u || "#"; a.target = "_top"; a.rel = "noopener";
+    if(!u){ kosong++; a.addEventListener("click", function(e){ e.preventDefault(); }); }
+    a.innerHTML = '<span class="ico">'+k.i+'</span><span>'+k.t+(u?'':'<small>Pautan belum ditetapkan</small>')+'</span>';
+    g.appendChild(a);
+  });
+  document.getElementById("nota").textContent = kosong ? kosong + " pautan belum diisi untuk tahun " + y + "." : "";
+}
+sel.addEventListener("change", papar);
+papar();
+</script>
+</body>
+</html>
